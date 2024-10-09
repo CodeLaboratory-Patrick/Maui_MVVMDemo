@@ -376,3 +376,482 @@ public object ConvertBack(object value, Type targetType, object parameter, Cultu
 ## Reference Sites
 - [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
 - [Microsoft Learn - IValueConverter](https://learn.microsoft.com/en-us/dotnet/api/system.windows.data.ivalueconverter)
+
+# ICommand in .NET MAUI
+
+## What is `public ICommand` in .NET MAUI?
+In .NET MAUI, **`ICommand`** is an interface that defines an action or command that can be bound to user interface elements, such as buttons. It is commonly used within the **MVVM (Model-View-ViewModel)** pattern to handle user interactions in a decoupled and reusable way, allowing commands to be defined in the **ViewModel** and triggered from the **View** without directly manipulating the UI from the code-behind.
+
+### Key Features of `ICommand`
+- **Command Binding**: Commands allow for easy binding between **UI elements** and **methods** in the **ViewModel**, maintaining separation between UI and business logic.
+- **Decoupled Event Handling**: Commands provide a way to handle events from controls (such as a button click) without direct coupling between the view and view logic, promoting **separation of concerns**.
+- **Reusable Logic**: A single command can be used for multiple UI elements, promoting reusability.
+- **CanExecute and Execute**: The **ICommand** interface provides the ability to determine whether a command can be executed using the **CanExecute** method, and to define the action using the **Execute** method.
+
+## Example of ICommand in .NET MAUI
+Below is an example of how to create and use an **ICommand** in .NET MAUI to handle a button click event.
+
+### 1. ViewModel with ICommand Implementation
+In the ViewModel, we define the **ICommand** and specify the logic for executing the command.
+
+```csharp
+using System.Windows.Input;
+using System.ComponentModel;
+
+public class MainViewModel : INotifyPropertyChanged
+{
+    private string message;
+    public string Message
+    {
+        get => message;
+        set
+        {
+            if (message != value)
+            {
+                message = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public ICommand ButtonClickCommand { get; }
+
+    public MainViewModel()
+    {
+        ButtonClickCommand = new Command(OnButtonClick);
+    }
+
+    private void OnButtonClick()
+    {
+        Message = "Button clicked!";
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected void OnPropertyChanged(string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+```
+- **`ICommand ButtonClickCommand`**: Defines a command named **ButtonClickCommand**.
+- **`new Command(OnButtonClick)`**: Creates a new command that runs the **OnButtonClick** method when executed.
+- **OnButtonClick**: This method updates the **Message** property, which can be displayed in the UI.
+- **INotifyPropertyChanged**: Implemented to notify the UI when the **Message** property changes, allowing the UI to be updated accordingly.
+
+### 2. Using the ICommand in XAML
+To use the command in the UI, we bind it to a button's **Command** property.
+
+```xml
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp.MainPage">
+    <ContentPage.BindingContext>
+        <local:MainViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Padding="20">
+        <Button Text="Click Me" Command="{Binding ButtonClickCommand}" />
+        <Label Text="{Binding Message}" FontSize="Large" />
+    </StackLayout>
+</ContentPage>
+```
+- **BindingContext**: The **BindingContext** of the **ContentPage** is set to the **MainViewModel**, allowing the UI to bind to properties and commands within the ViewModel.
+- **Button Command Binding**: The **Button** binds its `Command` property to the **ButtonClickCommand** in the ViewModel. When the button is clicked, it invokes the `OnButtonClick` method.
+- **Label Binding**: The **Label** displays the **Message** property, which is updated when the button is clicked.
+
+## Explanation of ICommand Components
+| Component          | Description                                                               | Example                                |
+|--------------------|---------------------------------------------------------------------------|----------------------------------------|
+| **ICommand**       | Interface defining a command to be bound to UI elements.                  | `public ICommand ButtonClickCommand { get; }` |
+| **CanExecute**     | Method to determine whether the command can be executed.                  | `return true;` (default behavior)      |
+| **Execute**        | Method defining the action to take when the command is executed.          | `OnButtonClick()`                      |
+| **Command Binding**| Binds the command to a UI element, typically in XAML.                     | `Command="{Binding ButtonClickCommand}"` |
+
+## When to Use ICommand
+### 1. **Handling Button Clicks and User Actions**
+- **Use Case**: When a button click needs to execute logic in the **ViewModel**. Instead of writing code-behind in the **View**, you define commands in the **ViewModel**.
+- **Example**: Submitting a form, navigating to a new page, or starting a calculation.
+
+### 2. **Enabling/Disabling UI Elements**
+- **Use Case**: When certain actions should only be available based on the application state. The **CanExecute** method can enable or disable UI elements.
+- **Example**: Disabling a submit button until all required fields are filled.
+
+### 3. **Separation of Concerns**
+- **Use Case**: Using **ICommand** helps maintain a clean separation between the UI layer and business logic by moving event handling to the **ViewModel**.
+- **Example**: Handling logic for a shopping cart application where buttons for "Add to Cart" and "Remove from Cart" invoke commands in the **ViewModel**, avoiding direct interaction with the UI.
+
+## Summary of ICommand Use Cases
+| Scenario                       | Description                                      | Common Use Cases                             |
+|--------------------------------|--------------------------------------------------|----------------------------------------------|
+| **Button Click Handling**      | Commands to handle user interactions like clicks | Submitting forms, navigation, etc.           |
+| **Dynamic UI States**          | Use `CanExecute` to enable/disable elements       | Enabling/disabling buttons based on state    |
+| **Separation of Concerns**     | Avoid direct UI manipulation in code-behind      | Keeping business logic in the ViewModel      |
+
+## Practical Scenario
+Consider an application with a login button that should only be active when both the username and password fields are filled. Using **ICommand** with a **CanExecute** function allows you to dynamically control the availability of the button based on the state of these fields. This ensures a cleaner, maintainable structure, keeping UI logic within the **ViewModel** and out of the code-behind.
+
+## Reference Sites
+- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
+- [Microsoft Learn - Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
+- [MVVM Pattern Overview](https://learn.microsoft.com/en-us/xamarin/xamarin-forms/enterprise-application-patterns/mvvm)
+
+# Comparing `public ICommand` and `private void Button_Clicked(object sender, EventArgs e)` in .NET MAUI
+
+## Overview
+In .NET MAUI, there are two primary approaches to handle user interactions, such as button clicks: using **`ICommand`** and the event handler method **`private void Button_Clicked(object sender, EventArgs e)`**. Both serve the purpose of reacting to user input, but they have different characteristics, use cases, and roles in application architecture.
+
+### Key Features of `ICommand`
+- **MVVM Integration**: **ICommand** is primarily used in the **MVVM (Model-View-ViewModel)** pattern to allow UI elements to bind to actions in the **ViewModel**.
+- **Command Binding**: Provides a clean way to bind a UI element (e.g., button) to a command in the ViewModel, ensuring separation between the UI and business logic.
+- **Decoupling UI and Logic**: Promotes separation of concerns by decoupling UI elements from event-handling code.
+- **CanExecute Support**: **ICommand** includes a **CanExecute** method that enables/disables UI elements based on certain conditions.
+
+### Key Features of `private void Button_Clicked(object sender, EventArgs e)`
+- **Event Handler in Code-Behind**: This approach uses an event handler directly in the code-behind to manage the action that occurs when a button is clicked.
+- **Direct UI Manipulation**: The event handler allows direct interaction with the UI elements, making it suitable for quick prototypes or simple interactions.
+- **Tight Coupling**: The logic is embedded in the code-behind file, leading to tighter coupling between the UI and its behavior, which can lead to maintenance challenges as the application grows.
+
+## Example of `ICommand` in .NET MAUI
+### ViewModel Command Definition
+```csharp
+using System.Windows.Input;
+
+public class MainViewModel
+{
+    public ICommand ButtonClickCommand { get; }
+
+    public MainViewModel()
+    {
+        ButtonClickCommand = new Command(OnButtonClick);
+    }
+
+    private void OnButtonClick()
+    {
+        // Logic to execute when button is clicked
+    }
+}
+```
+- **Command Binding**: The **`ButtonClickCommand`** is bound to the button in XAML.
+- **Logic in ViewModel**: The action performed is implemented in the **ViewModel** (`OnButtonClick`), promoting separation of concerns.
+
+### XAML Usage
+```xml
+<Button Text="Click Me" Command="{Binding ButtonClickCommand}" />
+```
+
+## Example of `Button_Clicked` in Code-Behind
+### Event Handler in Code-Behind
+```csharp
+public partial class MainPage : ContentPage
+{
+    public MainPage()
+    {
+        InitializeComponent();
+    }
+
+    private void Button_Clicked(object sender, EventArgs e)
+    {
+        // Logic to execute when button is clicked
+    }
+}
+```
+- **Direct Binding**: The **`Button_Clicked`** method is used directly in the XAML.
+
+### XAML Usage
+```xml
+<Button Text="Click Me" Clicked="Button_Clicked" />
+```
+
+## Differences Between `ICommand` and `Button_Clicked`
+| Feature                     | `public ICommand`                                      | `private void Button_Clicked(object sender, EventArgs e)` |
+|-----------------------------|--------------------------------------------------------|----------------------------------------------------------|
+| **Pattern**                 | Used in **MVVM** to promote separation of concerns     | Event handler used in code-behind                         |
+| **Decoupling**              | Decouples UI and business logic                        | Couples UI and logic in the code-behind                   |
+| **Binding**                 | Uses **Command** property in XAML                      | Uses **Clicked** event in XAML                            |
+| **Reusability**             | Reusable across multiple views                         | Tied to a specific view and UI element                    |
+| **Conditional Execution**   | Supports **CanExecute** for enabling/disabling actions | No built-in support for conditions, requires manual logic |
+| **Testability**             | Easier to unit test since it is in the ViewModel       | Harder to test as logic is embedded in code-behind        |
+
+## Commonalities
+- **User Interaction Handling**: Both approaches handle user interactions, such as button clicks.
+- **Triggers UI Actions**: They both allow developers to specify logic that should run when a button is clicked.
+
+## When to Use Each Approach
+### 1. **`ICommand` in MVVM Pattern**
+- **Use Case**: When following the **MVVM** architecture. It is ideal for larger applications that require **separation of concerns**, **testability**, and **reusability**.
+- **Benefits**: Ensures the UI logic is independent of the view, making it easier to test and maintain. Commands can also control whether buttons are enabled/disabled through **CanExecute** logic.
+
+### 2. **`Button_Clicked` Event Handler in Code-Behind**
+- **Use Case**: Suitable for smaller projects or rapid prototyping where **MVVM** may add unnecessary complexity.
+- **Benefits**: Easy to implement, less boilerplate code, and good for quick, one-off user interactions. However, it leads to tighter coupling between the UI and the logic, making it less ideal for complex or scalable applications.
+
+## Summary
+- **`public ICommand`**: Best for maintaining clean separation between UI and logic, used in **MVVM**. Promotes reusability and testability, especially in larger projects.
+- **`private void Button_Clicked`**: Quick, straightforward way to handle events in code-behind. Suitable for smaller projects or when rapid development is needed but leads to less maintainable and reusable code.
+
+## Reference Sites
+- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
+- [Microsoft Learn - MVVM in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/architecture/mvvm)
+- [Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
+
+# Three Ways to Create Commands from the ViewModel in .NET MAUI
+
+## Overview
+In .NET MAUI, commands are typically used to bind user actions, like button clicks, to methods defined in the **ViewModel**. This is crucial in the **MVVM (Model-View-ViewModel)** pattern to maintain a clean separation between UI and business logic. There are three common ways to create commands from the **ViewModel**:
+
+1. **Command Class (`System.Windows.Input.ICommand`)**
+2. **RelayCommand**
+3. **AsyncCommand**
+
+Each approach has its own strengths and is suited to different scenarios, depending on the requirements for handling user interactions in the application.
+
+### 1. Command Class (`System.Windows.Input.ICommand`)
+The **Command** class, provided by **`System.Windows.Input.ICommand`**, is a standard way to create a command in .NET MAUI.
+
+#### Key Features
+- **Simple to Implement**: This is a straightforward implementation of the **ICommand** interface, making it easy to use for basic command requirements.
+- **Execute and CanExecute Methods**: Provides methods to define the command logic (`Execute`) and determine if it can be executed (`CanExecute`).
+- **Usage**: Suitable for most general-purpose commands, where simple logic is needed to handle a user action.
+
+#### Example
+```csharp
+public class MainViewModel
+{
+    public ICommand ClickCommand { get; }
+
+    public MainViewModel()
+    {
+        ClickCommand = new Command(OnButtonClicked, CanButtonBeClicked);
+    }
+
+    private void OnButtonClicked()
+    {
+        // Logic for button click
+    }
+
+    private bool CanButtonBeClicked()
+    {
+        // Logic to determine if the button can be clicked
+        return true;
+    }
+}
+```
+- **`OnButtonClicked`**: Defines the logic to be executed when the button is clicked.
+- **`CanButtonBeClicked`**: Controls whether the button is enabled or not.
+
+### 2. RelayCommand
+**RelayCommand** is a type of command often used in **MVVM** frameworks like **MVVMLight**. It provides a more flexible way to create commands without needing to implement the **ICommand** interface manually.
+
+#### Key Features
+- **Simplified Creation**: Allows quick creation of commands without needing to manually implement **ICommand**.
+- **Parameters Support**: Often supports commands with parameters, making it versatile for different types of actions.
+- **Usage**: Typically used when there is no need for complex **CanExecute** logic or when parameterized commands are required.
+
+#### Example
+```csharp
+public class MainViewModel
+{
+    public RelayCommand ClickCommand { get; }
+
+    public MainViewModel()
+    {
+        ClickCommand = new RelayCommand(OnButtonClicked);
+    }
+
+    private void OnButtonClicked()
+    {
+        // Logic for button click
+    }
+}
+```
+- **RelayCommand**: Provides an easier approach to create commands without needing to define **Execute** and **CanExecute** separately.
+- **Parameters**: RelayCommand can easily accept parameters, enabling more flexibility.
+
+### 3. AsyncCommand
+**AsyncCommand** is used for commands that execute **asynchronous operations**. This is essential for maintaining a responsive UI when performing long-running tasks, such as making network requests or loading data.
+
+#### Key Features
+- **Asynchronous Execution**: Commands are executed asynchronously, ensuring that the UI remains responsive.
+- **Task-Based Implementation**: The command is usually implemented using **async/await** for proper asynchronous handling.
+- **Usage**: Suitable for long-running operations, such as data fetching or updating from a remote server.
+
+#### Example
+```csharp
+using System.Threading.Tasks;
+
+public class MainViewModel
+{
+    public AsyncCommand LoadDataCommand { get; }
+
+    public MainViewModel()
+    {
+        LoadDataCommand = new AsyncCommand(LoadDataAsync);
+    }
+
+    private async Task LoadDataAsync()
+    {
+        // Logic for loading data asynchronously
+        await Task.Delay(1000); // Simulate data loading
+    }
+}
+```
+- **AsyncCommand**: Executes the **LoadDataAsync** method asynchronously.
+- **Responsive UI**: Keeps the UI responsive by running the command asynchronously.
+
+## Comparison of Command Types
+| Feature                   | Command (`ICommand`)                          | RelayCommand                           | AsyncCommand                          |
+|---------------------------|-----------------------------------------------|----------------------------------------|----------------------------------------|
+| **Implementation**        | Implements `ICommand` manually                | Simplified implementation              | Asynchronous command                   |
+| **Asynchronous Support**  | No                                           | No                                     | Yes                                    |
+| **CanExecute Logic**      | Supports `CanExecute` method                  | Supports `CanExecute` method           | Supports `CanExecute` method           |
+| **Parameter Support**     | Limited                                       | Yes                                    | Yes                                    |
+| **Use Case**              | General command needs                        | Flexible and quick command creation    | Long-running operations, async logic   |
+
+## Commonalities
+- **Command Binding**: All three command types can be bound to UI elements using the **Command** property in XAML.
+- **Separation of Concerns**: Each command type promotes the separation of UI logic from business logic, maintaining the **MVVM** architecture.
+
+## When to Use Each Command Type
+### 1. **Command (`ICommand`)**
+- **Use Case**: Best for general-purpose commands that are simple and do not require asynchronous handling.
+- **Example**: Toggling a setting on or off.
+
+### 2. **RelayCommand**
+- **Use Case**: Ideal when you need a simple, parameterized command. RelayCommand is also useful when you want a quick way to implement commands without much boilerplate.
+- **Example**: Submitting a form with input values passed as parameters.
+
+### 3. **AsyncCommand**
+- **Use Case**: When dealing with tasks that might take a significant amount of time, like fetching data from a server or processing large amounts of data. AsyncCommand ensures that the UI does not freeze during the operation.
+- **Example**: Loading data from a remote database or calling an API.
+
+## Summary
+- **Command (`ICommand`)**: Provides a standard implementation of commands suitable for general tasks.
+- **RelayCommand**: Offers a simpler and more flexible way to create commands, especially useful for parameterized actions.
+- **AsyncCommand**: Designed for asynchronous tasks, keeping the UI responsive during long-running operations.
+
+## Reference Sites
+- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
+- [Microsoft Learn - MVVM and Commands](https://learn.microsoft.com/en-us/dotnet/maui/architecture/mvvm)
+- [AsyncCommand in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
+
+# SearchButtonPressed, SearchCommand, and SearchCommandParameter in .NET MAUI
+
+## Overview
+In **.NET MAUI**, the **SearchBar** control allows users to input search text and initiate searches. This control includes several properties and events to handle user interactions, including **SearchButtonPressed**, **SearchCommand**, and **SearchCommandParameter**. These functionalities help manage how search actions are triggered and processed, making it easier to integrate a search feature in an application.
+
+### Key Elements
+1. **SearchButtonPressed**: An event that occurs when the search button is pressed.
+2. **SearchCommand**: A command that is executed when the search button is pressed or when a search is initiated.
+3. **SearchCommandParameter**: A parameter passed to the **SearchCommand** when it is executed, providing context or additional information to the command.
+
+## 1. SearchButtonPressed
+The **SearchButtonPressed** is an **event** in the **SearchBar** control that is triggered when the user presses the search button (typically represented by a magnifying glass icon or an "Enter" key press).
+
+### Key Features
+- **Event Handling**: Used to handle the action when the user submits the search input.
+- **Code-Behind Implementation**: Often used in code-behind to directly respond to user actions.
+- **Flexible Logic**: You can define custom logic, such as validating the search term or updating the UI, in the event handler.
+
+### Example
+```csharp
+public partial class MainPage : ContentPage
+{
+    public MainPage()
+    {
+        InitializeComponent();
+    }
+
+    private void SearchBar_SearchButtonPressed(object sender, EventArgs e)
+    {
+        var searchBar = (SearchBar)sender;
+        string searchTerm = searchBar.Text;
+        // Logic to handle the search action
+        DisplayAlert("Search", $"You searched for: {searchTerm}", "OK");
+    }
+}
+```
+- **SearchBar_SearchButtonPressed**: This method is executed when the user presses the search button. It retrieves the search term from the **SearchBar** and displays it in an alert.
+
+### When to Use
+- **Simple Search Logic**: Use **SearchButtonPressed** when you want to handle the search logic directly in the code-behind, typically in simpler applications.
+- **Event-Based Handling**: Ideal for straightforward scenarios where complex MVVM binding is not needed.
+
+## 2. SearchCommand
+The **SearchCommand** is a property of the **SearchBar** control that binds a command from the **ViewModel**. This command is executed whenever a search action is triggered, such as pressing the search button.
+
+### Key Features
+- **Command Binding**: Binds to a command in the **ViewModel** to handle the search action, keeping the logic separate from the UI.
+- **MVVM Support**: Promotes the **MVVM** pattern by allowing search logic to reside in the **ViewModel**, improving separation of concerns.
+
+### Example
+```csharp
+public class MainViewModel
+{
+    public ICommand PerformSearchCommand { get; }
+
+    public MainViewModel()
+    {
+        PerformSearchCommand = new Command<string>(OnPerformSearch);
+    }
+
+    private void OnPerformSearch(string searchTerm)
+    {
+        // Logic to perform search
+        Console.WriteLine($"Searching for: {searchTerm}");
+    }
+}
+```
+
+```xml
+<SearchBar Placeholder="Search here..."
+           SearchCommand="{Binding PerformSearchCommand}"
+           SearchCommandParameter="{Binding SearchText}" />
+```
+- **PerformSearchCommand**: Defines a command that handles the search action.
+- **Command Binding**: The **SearchCommand** is bound to the **PerformSearchCommand** in the **ViewModel**, which ensures that the search logic is properly separated from the UI.
+
+### When to Use
+- **Complex Applications**: Use **SearchCommand** in applications following the **MVVM** pattern to keep the search logic within the **ViewModel**.
+- **Reusability**: Suitable when the search command can be reused across multiple views or when you need a centralized approach to handle search actions.
+
+## 3. SearchCommandParameter
+The **SearchCommandParameter** is a parameter that is passed to the **SearchCommand** when it is executed. It provides additional information that can be used by the command, such as the current search text.
+
+### Key Features
+- **Parameter Passing**: Allows you to pass a value (e.g., the search text) to the command, providing context for the search action.
+- **Flexible Context**: Makes it possible to use the same command in different scenarios by varying the parameter.
+
+### Example
+```xml
+<SearchBar Placeholder="Search here..."
+           SearchCommand="{Binding PerformSearchCommand}"
+           SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}" 
+           x:Name="searchBar" />
+```
+- **SearchCommandParameter**: Passes the current text from the **SearchBar** to the **PerformSearchCommand**. This ensures the command has the necessary context to perform the search.
+
+### When to Use
+- **Parameter-Specific Logic**: Use **SearchCommandParameter** when the search command logic requires additional context, such as filtering options or user-specific information.
+- **Flexible Command Handling**: Ideal when you want the same command to operate differently depending on the context provided by the parameter.
+
+## Summary Table of Search Features
+| Feature                 | Description                                                       | Common Use Cases                         |
+|-------------------------|-------------------------------------------------------------------|------------------------------------------|
+| **SearchButtonPressed** | Event triggered when the search button is pressed.                | Simple search logic in code-behind.      |
+| **SearchCommand**       | Command bound to the **ViewModel** for executing search actions. | MVVM-based applications with separation of concerns. |
+| **SearchCommandParameter** | Parameter passed to **SearchCommand** for additional context.   | When search logic requires extra input, such as filter criteria. |
+
+## Commonalities
+- **Search Trigger**: All three methods involve triggering a search when a user interacts with the **SearchBar**.
+- **User Interaction**: Each method is used to handle user search input in different ways.
+
+## Practical Scenario
+Consider an e-commerce application where users can search for products:
+- For a **simple search**, **SearchButtonPressed** can be used to quickly handle the search logic in code-behind, making it easy to implement and understand.
+- For a **more complex search** that requires filtering based on multiple factors, **SearchCommand** and **SearchCommandParameter** provide flexibility. You can use **SearchCommand** to define a reusable search logic in the **ViewModel**, while **SearchCommandParameter** helps pass different filter options to make the search customizable.
+
+## Reference Sites
+- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
+- [Microsoft Learn - SearchBar Control](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/searchbar)
+- [Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
