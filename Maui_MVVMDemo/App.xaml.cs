@@ -1,4 +1,6 @@
-﻿namespace Maui_MVVMDemo
+﻿using Maui_MVVMDemo.MVVM.Views;
+
+namespace Maui_MVVMDemo
 {
     public partial class App : Application
     {
@@ -6,7 +8,7 @@
         {
             InitializeComponent();
 
-            MainPage = new AppShell();
+            MainPage = new PersonView();
         }
     }
 }
