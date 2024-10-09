@@ -8,7 +8,7 @@ namespace Maui_MVVMDemo
         {
             InitializeComponent();
 
-            MainPage = new PersonView();
+            MainPage = new PeopleView();
         }
     }
 }
