@@ -20,9 +20,10 @@ namespace Maui_MVVMDemo.MVVM.ViewModels
                 App.Current.MainPage
                 .DisplayAlert("Title", "message", "Ok");
             });
-            SearchCommand = new Command((s) =>
+
+            SearchCommand = new Command((searching) =>
             {
-                var data = s;
+                var data = searching;
             });
         }
 
