@@ -8,7 +8,7 @@ namespace Maui_MVVMDemo
         {
             InitializeComponent();
 
-            MainPage = new ConvertersView();
+            MainPage = new CommandsView();
         }
     }
 }
