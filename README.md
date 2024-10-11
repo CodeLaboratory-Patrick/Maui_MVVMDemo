@@ -120,7 +120,6 @@ For example, in an application that requires input forms, displaying data lists,
 
 ## Reference Sites
 - [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
-- [Microsoft Learn - MVVM in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/architecture/mvvm)
 - [MVVM Pattern Overview](https://learn.microsoft.com/en-us/xamarin/xamarin-forms/enterprise-application-patterns/mvvm)
 
 # CollectionView SelectionMode in .NET MAUI
@@ -493,7 +492,6 @@ Consider an application with a login button that should only be active when both
 
 ## Reference Sites
 - [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
-- [Microsoft Learn - Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
 - [MVVM Pattern Overview](https://learn.microsoft.com/en-us/xamarin/xamarin-forms/enterprise-application-patterns/mvvm)
 
 # Comparing `public ICommand` and `private void Button_Clicked(object sender, EventArgs e)` in .NET MAUI
@@ -593,7 +591,6 @@ public partial class MainPage : ContentPage
 ## Reference Sites
 - [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
 - [Microsoft Learn - MVVM in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/architecture/mvvm)
-- [Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
 
 # Three Ways to Create Commands from the ViewModel in .NET MAUI
 
@@ -730,11 +727,6 @@ public class MainViewModel
 - **RelayCommand**: Offers a simpler and more flexible way to create commands, especially useful for parameterized actions.
 - **AsyncCommand**: Designed for asynchronous tasks, keeping the UI responsive during long-running operations.
 
-## Reference Sites
-- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
-- [Microsoft Learn - MVVM and Commands](https://learn.microsoft.com/en-us/dotnet/maui/architecture/mvvm)
-- [AsyncCommand in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
-
 # SearchButtonPressed, SearchCommand, and SearchCommandParameter in .NET MAUI
 
 ## Overview
@@ -851,7 +843,3 @@ Consider an e-commerce application where users can search for products:
 - For a **simple search**, **SearchButtonPressed** can be used to quickly handle the search logic in code-behind, making it easy to implement and understand.
 - For a **more complex search** that requires filtering based on multiple factors, **SearchCommand** and **SearchCommandParameter** provide flexibility. You can use **SearchCommand** to define a reusable search logic in the **ViewModel**, while **SearchCommandParameter** helps pass different filter options to make the search customizable.
 
-## Reference Sites
-- [.NET MAUI Documentation](https://learn.microsoft.com/en-us/dotnet/maui/)
-- [Microsoft Learn - SearchBar Control](https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/searchbar)
-- [Commands in .NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/commands)
